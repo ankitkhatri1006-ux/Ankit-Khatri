@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "PlayerProfile": {
+      "title": "PlayerProfile",
+      "description": "Authenticated Yodha Royale player profile, rank, Desi character customization, weapon loadout, graphics preset, and Kavach anti-cheat trust score.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the owner." },
+        "callsign": { "type": "string", "description": "Player in-game callsign (2-24 chars)." },
+        "rankPoints": { "type": "integer", "description": "Competitive MMR / Rank Points." },
+        "rankTier": {
+          "type": "string",
+          "enum": ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Crown", "Ace", "Maharaja"],
+          "description": "Competitive grade tier."
+        },
+        "kills": { "type": "integer", "description": "Total career eliminations." },
+        "wins": { "type": "integer", "description": "Total Victory / Chicken Dinner wins." },
+        "matchesPlayed": { "type": "integer", "description": "Total matches played." },
+        "seasonXp": { "type": "integer", "description": "Seasonal Battle Pass XP." },
+        "selectedGender": { "type": "string", "enum": ["BOY", "GIRL"], "description": "Desi warrior gender (Veer or Tara)." },
+        "hairStyle": { "type": "string", "description": "Selected hairstyle ID." },
+        "hairColor": { "type": "string", "description": "Selected hair color ID." },
+        "faceStyle": { "type": "string", "description": "Selected face accessory / marking ID." },
+        "outfitStyle": { "type": "string", "description": "Selected Desi tactical outfit ID." },
+        "selectedEmote": { "type": "string", "description": "Active signature emote ID." },
+        "primaryWeaponId": { "type": "string", "description": "Equipped primary weapon ID." },
+        "secondaryWeaponId": { "type": "string", "description": "Equipped secondary weapon ID." },
+        "sidearmWeaponId": { "type": "string", "description": "Equipped sidearm ID." },
+        "meleeWeaponId": { "type": "string", "description": "Equipped melee weapon ID." },
+        "unlockedAttachments": { "type": "array", "description": "List of equipped attachment IDs." },
+        "backpackItems": { "type": "array", "description": "List of tactical backpack item IDs." },
+        "graphicsPreset": {
+          "type": "string",
+          "enum": ["Smooth", "Balanced", "HD", "HDR", "Ultra HD"],
+          "description": "Graphics quality preset."
+        },
+        "antiCheatTrust": { "type": "integer", "description": "Kavach Anti-Cheat trust score (0-100)." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": [
+        "userId", "callsign", "rankPoints", "rankTier", "kills", "wins", "matchesPlayed",
+        "seasonXp", "selectedGender", "hairStyle", "hairColor", "faceStyle", "outfitStyle",
+        "selectedEmote", "primaryWeaponId", "secondaryWeaponId", "sidearmWeaponId",
+        "meleeWeaponId", "graphicsPreset", "antiCheatTrust", "createdAt", "updatedAt"
+      ]
+    },
+    "AntiCheatLog": {
+      "title": "AntiCheatLog",
+      "description": "Kavach Anti-Cheat integrity check telemetry log entry.",
+      "type": "object",
+      "properties": {
+        "eventType": { "type": "string", "description": "Check category (e.g., VELOCITY_CHECK, CADENCE_AUDIT, SESSION_HASH)." },
+        "status": { "type": "string", "enum": ["VERIFIED", "WARNING", "BLOCKED"], "description": "Result of telemetry check." },
+        "latencyMs": { "type": "integer", "description": "Round-trip server latency in ms." },
+        "integrityScore": { "type": "integer", "description": "Integrity score 0-100." },
+        "detail": { "type": "string", "description": "Short telemetry summary." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp." }
+      },
+      "required": ["eventType", "status", "latencyMs", "integrityScore", "detail", "createdAt"]
+    },
+    "MatchRoom": {
+      "title": "MatchRoom",
+      "description": "Real-time multiplayer matchmaking lobby room.",
+      "type": "object",
+      "properties": {
+        "hostUid": { "type": "string", "description": "UID of the room host." },
+        "hostName": { "type": "string", "description": "Callsign of the host." },
+        "roomTitle": { "type": "string", "description": "Lobby title." },
+        "mapId": { "type": "string", "description": "Indian map ID." },
+        "modeId": { "type": "string", "description": "Game mode ID." },
+        "rankBracket": { "type": "string", "description": "Competitive grade bracket." },
+        "targetMmr": { "type": "integer", "description": "Target MMR for balanced opponents." },
+        "roomState": { "type": "string", "enum": ["OPEN", "CLOSED"], "description": "Visibility state for matchmaking queries." },
+        "status": { "type": "string", "enum": ["WAITING", "IN_MATCH", "FINISHED"], "description": "Room match status." },
+        "playerUids": { "type": "array", "description": "Joined player UIDs (max 4)." },
+        "playerNames": { "type": "array", "description": "Joined player callsigns (max 4)." },
+        "readyUids": { "type": "array", "description": "Ready player UIDs." },
+        "voiceActiveUids": { "type": "array", "description": "Players with active voice chat mic." },
+        "maxPlayers": { "type": "integer", "description": "Max squad size (1-4)." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp." }
+      },
+      "required": [
+        "hostUid", "hostName", "roomTitle", "mapId", "modeId", "rankBracket", "targetMmr",
+        "roomState", "status", "playerUids", "playerNames", "readyUids", "voiceActiveUids",
+        "maxPlayers", "createdAt", "updatedAt"
+      ]
+    },
+    "ForumPost": {
+      "title": "ForumPost",
+      "description": "Community forum post for squads, loadouts, and seasonal discussions.",
+      "type": "object",
+      "properties": {
+        "authorUid": { "type": "string", "description": "Author Firebase Auth UID." },
+        "authorName": { "type": "string", "description": "Author callsign." },
+        "authorRank": { "type": "string", "description": "Author competitive rank tier." },
+        "category": { "type": "string", "enum": ["Squad Up", "Loadouts", "Tournaments", "Feedback"] },
+        "title": { "type": "string", "description": "Post headline." },
+        "body": { "type": "string", "description": "Post content." },
+        "likesCount": { "type": "integer", "description": "Upvote count." },
+        "commentsCount": { "type": "integer", "description": "Reply count." },
+        "likedByUids": { "type": "array", "description": "UIDs that upvoted." },
+        "moderationStatus": { "type": "string", "enum": ["PUBLISHED"], "description": "Visibility status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp." }
+      },
+      "required": [
+        "authorUid", "authorName", "authorRank", "category", "title", "body",
+        "likesCount", "commentsCount", "likedByUids", "moderationStatus", "createdAt", "updatedAt"
+      ]
+    },
+    "ForumComment": {
+      "title": "ForumComment",
+      "description": "Reply comment on a community forum post.",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string", "description": "Parent forum post ID." },
+        "authorUid": { "type": "string", "description": "Author Firebase Auth UID." },
+        "authorName": { "type": "string", "description": "Author callsign." },
+        "body": { "type": "string", "description": "Comment text." },
+        "moderationStatus": { "type": "string", "enum": ["PUBLISHED"], "description": "Visibility status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp." }
+      },
+      "required": ["postId", "authorUid", "authorName", "body", "moderationStatus", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/PlayerProfile" },
+      "description": "Owner-isolated player profile, Desi character customization, inventory, and stats."
+    },
+    "/users/{userId}/anticheat_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AntiCheatLog" },
+      "description": "Owner-isolated Kavach Anti-Cheat telemetry logs."
+    },
+    "/match_rooms/{roomId}": {
+      "schema": { "$ref": "#/entities/MatchRoom" },
+      "description": "Real-time multiplayer matchmaking squad rooms."
+    },
+    "/forum_posts/{postId}": {
+      "schema": { "$ref": "#/entities/ForumPost" },
+      "description": "Community forum posts."
+    },
+    "/forum_posts/{postId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/ForumComment" },
+      "description": "Comments under a forum post."
+    }
+  }
+}

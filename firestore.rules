@@ -1,0 +1,264 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidStringList(listVal, maxLen) {
+      return listVal is list && listVal.size() <= maxLen && (listVal.size() == 0 || listVal[0] is string);
+    }
+
+    function isValidPlayerProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.callsign is string && data.callsign.size() >= 2 && data.callsign.size() <= 24 &&
+             data.rankPoints is int && data.rankPoints >= 0 && data.rankPoints <= 50000 &&
+             data.rankTier in ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Crown', 'Ace', 'Maharaja'] &&
+             data.kills is int && data.kills >= 0 && data.kills <= 1000000 &&
+             data.wins is int && data.wins >= 0 && data.wins <= 100000 &&
+             data.matchesPlayed is int && data.matchesPlayed >= 0 && data.matchesPlayed <= 1000000 &&
+             data.seasonXp is int && data.seasonXp >= 0 && data.seasonXp <= 10000000 &&
+             data.selectedGender in ['BOY', 'GIRL'] &&
+             data.hairStyle is string && data.hairStyle.size() >= 1 && data.hairStyle.size() <= 40 &&
+             data.hairColor is string && data.hairColor.size() >= 1 && data.hairColor.size() <= 30 &&
+             data.faceStyle is string && data.faceStyle.size() >= 1 && data.faceStyle.size() <= 40 &&
+             data.outfitStyle is string && data.outfitStyle.size() >= 1 && data.outfitStyle.size() <= 40 &&
+             data.selectedEmote is string && data.selectedEmote.size() >= 1 && data.selectedEmote.size() <= 40 &&
+             data.primaryWeaponId is string && data.primaryWeaponId.size() >= 1 && data.primaryWeaponId.size() <= 40 &&
+             data.secondaryWeaponId is string && data.secondaryWeaponId.size() >= 1 && data.secondaryWeaponId.size() <= 40 &&
+             data.sidearmWeaponId is string && data.sidearmWeaponId.size() >= 1 && data.sidearmWeaponId.size() <= 40 &&
+             data.meleeWeaponId is string && data.meleeWeaponId.size() >= 1 && data.meleeWeaponId.size() <= 40 &&
+             data.graphicsPreset in ['Smooth', 'Balanced', 'HD', 'HDR', 'Ultra HD'] &&
+             data.antiCheatTrust is int && data.antiCheatTrust >= 0 && data.antiCheatTrust <= 100 &&
+             (!('unlockedAttachments' in data) || isValidStringList(data.unlockedAttachments, 20)) &&
+             (!('backpackItems' in data) || isValidStringList(data.backpackItems, 20)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidAntiCheatLog(data) {
+      return data.eventType is string && data.eventType.size() >= 2 && data.eventType.size() <= 40 &&
+             data.status in ['VERIFIED', 'WARNING', 'BLOCKED'] &&
+             data.latencyMs is int && data.latencyMs >= 0 && data.latencyMs <= 10000 &&
+             data.integrityScore is int && data.integrityScore >= 0 && data.integrityScore <= 100 &&
+             data.detail is string && data.detail.size() >= 2 && data.detail.size() <= 200 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidMatchRoom(data) {
+      return data.hostUid is string && data.hostUid.size() >= 1 && data.hostUid.size() <= 128 &&
+             data.hostName is string && data.hostName.size() >= 2 && data.hostName.size() <= 24 &&
+             data.roomTitle is string && data.roomTitle.size() >= 3 && data.roomTitle.size() <= 50 &&
+             data.mapId is string && data.mapId.size() >= 2 && data.mapId.size() <= 40 &&
+             data.modeId is string && data.modeId.size() >= 2 && data.modeId.size() <= 40 &&
+             data.rankBracket is string && data.rankBracket.size() >= 2 && data.rankBracket.size() <= 24 &&
+             data.targetMmr is int && data.targetMmr >= 0 && data.targetMmr <= 50000 &&
+             data.roomState in ['OPEN', 'CLOSED'] &&
+             data.status in ['WAITING', 'IN_MATCH', 'FINISHED'] &&
+             isValidStringList(data.playerUids, 4) &&
+             isValidStringList(data.playerNames, 4) &&
+             isValidStringList(data.readyUids, 4) &&
+             isValidStringList(data.voiceActiveUids, 4) &&
+             data.maxPlayers is int && data.maxPlayers >= 1 && data.maxPlayers <= 4 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidForumPost(data) {
+      return data.authorUid is string && data.authorUid.size() >= 1 && data.authorUid.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 2 && data.authorName.size() <= 24 &&
+             data.authorRank is string && data.authorRank.size() >= 2 && data.authorRank.size() <= 20 &&
+             data.category in ['Squad Up', 'Loadouts', 'Tournaments', 'Feedback'] &&
+             data.title is string && data.title.size() >= 3 && data.title.size() <= 80 &&
+             data.body is string && data.body.size() >= 5 && data.body.size() <= 800 &&
+             data.likesCount is int && data.likesCount >= 0 && data.likesCount <= 1000000 &&
+             data.commentsCount is int && data.commentsCount >= 0 && data.commentsCount <= 100000 &&
+             isValidStringList(data.likedByUids, 200) &&
+             data.moderationStatus in ['PUBLISHED'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidForumComment(data) {
+      return data.postId is string && data.postId.size() >= 1 && data.postId.size() <= 128 &&
+             data.authorUid is string && data.authorUid.size() >= 1 && data.authorUid.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 2 && data.authorName.size() <= 24 &&
+             data.body is string && data.body.size() >= 1 && data.body.size() <= 400 &&
+             data.moderationStatus in ['PUBLISHED'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // 1. Owner-isolated Player Profiles
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'userId', 'callsign', 'rankPoints', 'rankTier', 'kills', 'wins', 'matchesPlayed',
+                         'seasonXp', 'selectedGender', 'hairStyle', 'hairColor', 'faceStyle', 'outfitStyle',
+                         'selectedEmote', 'primaryWeaponId', 'secondaryWeaponId', 'sidearmWeaponId',
+                         'meleeWeaponId', 'graphicsPreset', 'antiCheatTrust', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'callsign', 'rankPoints', 'rankTier', 'kills', 'wins', 'matchesPlayed',
+                         'seasonXp', 'selectedGender', 'hairStyle', 'hairColor', 'faceStyle', 'outfitStyle',
+                         'selectedEmote', 'primaryWeaponId', 'secondaryWeaponId', 'sidearmWeaponId',
+                         'meleeWeaponId', 'unlockedAttachments', 'backpackItems', 'graphicsPreset',
+                         'antiCheatTrust', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidPlayerProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidPlayerProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'callsign', 'rankPoints', 'rankTier', 'kills', 'wins', 'matchesPlayed',
+                         'seasonXp', 'selectedGender', 'hairStyle', 'hairColor', 'faceStyle', 'outfitStyle',
+                         'selectedEmote', 'primaryWeaponId', 'secondaryWeaponId', 'sidearmWeaponId',
+                         'meleeWeaponId', 'unlockedAttachments', 'backpackItems', 'graphicsPreset',
+                         'antiCheatTrust', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+      match /anticheat_logs/{logId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId;
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(logId) &&
+                         request.auth.uid == userId &&
+                         incoming().keys().hasAll(['eventType', 'status', 'latencyMs', 'integrityScore', 'detail', 'createdAt']) &&
+                         incoming().keys().hasOnly(['eventType', 'status', 'latencyMs', 'integrityScore', 'detail', 'createdAt']) &&
+                         isValidAntiCheatLog(incoming());
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
+      }
+    }
+
+    // 2. Real-Time Multiplayer Match Rooms
+    match /match_rooms/{roomId} {
+      allow get: if isSignedIn() && isValidId(roomId);
+      allow list: if isSignedIn() && resource.data.roomState == 'OPEN';
+
+      allow create: if isSignedIn() &&
+                       isValidId(roomId) &&
+                       incoming().hostUid == request.auth.uid &&
+                       incoming().roomState == 'OPEN' &&
+                       incoming().status == 'WAITING' &&
+                       incoming().keys().hasAll([
+                         'hostUid', 'hostName', 'roomTitle', 'mapId', 'modeId', 'rankBracket', 'targetMmr',
+                         'roomState', 'status', 'playerUids', 'playerNames', 'readyUids', 'voiceActiveUids',
+                         'maxPlayers', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'hostUid', 'hostName', 'roomTitle', 'mapId', 'modeId', 'rankBracket', 'targetMmr',
+                         'roomState', 'status', 'playerUids', 'playerNames', 'readyUids', 'voiceActiveUids',
+                         'maxPlayers', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidMatchRoom(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(roomId) &&
+                       isValidMatchRoom(incoming()) &&
+                       incoming().hostUid == existing().hostUid &&
+                       incoming().hostName == existing().hostName &&
+                       incoming().roomTitle == existing().roomTitle &&
+                       incoming().rankBracket == existing().rankBracket &&
+                       incoming().targetMmr == existing().targetMmr &&
+                       incoming().maxPlayers == existing().maxPlayers &&
+                       incoming().createdAt == existing().createdAt &&
+                       existing().status != 'FINISHED' &&
+                       (
+                         (existing().hostUid == request.auth.uid &&
+                          incoming().diff(existing()).affectedKeys().hasOnly([
+                            'status', 'roomState', 'mapId', 'modeId', 'playerUids', 'playerNames',
+                            'readyUids', 'voiceActiveUids', 'updatedAt'
+                          ])) ||
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'playerUids', 'playerNames', 'readyUids', 'voiceActiveUids', 'updatedAt'
+                         ])
+                       );
+
+      allow delete: if isSignedIn() && isValidId(roomId) && existing().hostUid == request.auth.uid;
+    }
+
+    // 3. Community Forum Posts & Comments
+    match /forum_posts/{postId} {
+      allow get: if isSignedIn() && isValidId(postId);
+      allow list: if isSignedIn() && resource.data.moderationStatus == 'PUBLISHED';
+
+      allow create: if isSignedIn() &&
+                       isValidId(postId) &&
+                       incoming().authorUid == request.auth.uid &&
+                       incoming().moderationStatus == 'PUBLISHED' &&
+                       incoming().keys().hasAll([
+                         'authorUid', 'authorName', 'authorRank', 'category', 'title', 'body',
+                         'likesCount', 'commentsCount', 'likedByUids', 'moderationStatus', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'authorUid', 'authorName', 'authorRank', 'category', 'title', 'body',
+                         'likesCount', 'commentsCount', 'likedByUids', 'moderationStatus', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidForumPost(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(postId) &&
+                       isValidForumPost(incoming()) &&
+                       incoming().authorUid == existing().authorUid &&
+                       incoming().authorName == existing().authorName &&
+                       incoming().authorRank == existing().authorRank &&
+                       incoming().moderationStatus == existing().moderationStatus &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         (existing().authorUid == request.auth.uid &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'body', 'category', 'updatedAt'])) ||
+                         incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'likedByUids', 'commentsCount', 'updatedAt'])
+                       );
+
+      allow delete: if isSignedIn() && isValidId(postId) && existing().authorUid == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow get: if isSignedIn() && isValidId(postId) && isValidId(commentId);
+        allow list: if isSignedIn() && resource.data.moderationStatus == 'PUBLISHED';
+
+        allow create: if isSignedIn() &&
+                         isValidId(postId) &&
+                         isValidId(commentId) &&
+                         exists(/databases/$(database)/documents/forum_posts/$(postId)) &&
+                         incoming().postId == postId &&
+                         incoming().authorUid == request.auth.uid &&
+                         incoming().moderationStatus == 'PUBLISHED' &&
+                         incoming().keys().hasAll(['postId', 'authorUid', 'authorName', 'body', 'moderationStatus', 'createdAt']) &&
+                         incoming().keys().hasOnly(['postId', 'authorUid', 'authorName', 'body', 'moderationStatus', 'createdAt']) &&
+                         isValidForumComment(incoming());
+
+        allow delete: if isSignedIn() && isValidId(postId) && isValidId(commentId) && existing().authorUid == request.auth.uid;
+      }
+    }
+  }
+}

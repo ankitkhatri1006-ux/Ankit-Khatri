@@ -1,0 +1,8 @@
+{
+  "name": "Yodha Royale",
+  "description": "Indian tactical battle royale with Desi characters, iconic Indian maps, ranked grades, full arsenal, real-time multiplayer lobbies, voice chat, anti-cheat, and community forum.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
